@@ -6,10 +6,23 @@ IPAddress local_ip(1,1,1,1);
 IPAddress gateway(1,1,1,1);
 IPAddress subnet(255,255,255,0);
 WebServer server(80);
+const int s0 = 19;  
+const int s1 = 18;
+const int out = 15;  
+const int s17 = 17;  
+const int s3 = 4;  
+int red,blue,green,white;
 uint8_t LED1pin = 2;
 bool LED1status = LOW;
 void setup() {
   Serial.begin(115200);
+  pinMode(s0, OUTPUT);  
+  pinMode(s1, OUTPUT);  
+  pinMode(s17, OUTPUT);  
+  pinMode(s3, OUTPUT);  
+  pinMode(out, INPUT);  
+  digitalWrite(s0, HIGH);  
+  digitalWrite(s1, HIGH);  
   pinMode(LED1pin, OUTPUT);
   WiFi.softAP(ssid, password);
   WiFi.softAPConfig(local_ip, gateway, subnet);
@@ -22,11 +35,53 @@ void setup() {
   Serial.println("HTTP server started");
 }
 void loop() {
+  color();
+  delay(500);
+  Serial.println();
   server.handleClient();
   if(LED1status)
   {digitalWrite(LED1pin, HIGH);}
   else
   {digitalWrite(LED1pin, LOW);}
+}
+void color()  
+{    
+  //red
+  digitalWrite(s17, LOW);  
+  digitalWrite(s3, LOW);   
+  delay(50); 
+  red = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
+
+  //blue
+  digitalWrite(s17, LOW);
+  digitalWrite(s3, HIGH); 
+  delay(50);  
+  blue = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
+
+  //green
+  digitalWrite(s17, HIGH);
+  digitalWrite(s3, HIGH);  
+  delay(50);  
+  green = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
+
+  //white
+  digitalWrite(s17, LOW);
+  digitalWrite(s3, LOW);  
+  delay(50);  
+  green = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
+  
+  //color_recognition
+  if(red<blue && red<green)
+  Serial.println("color: Red");
+  else if(blue<red && blue<green)
+  Serial.println("color: Blue");
+  else if(green<red && green<blue)
+  Serial.println("color: Green");
+  else if(white<10)
+  Serial.println("color: White");
+  else
+  Serial.println("color: Not Defined");
+
 }
 void handle_OnConnect() {
   LED1status = LOW;
@@ -36,12 +91,12 @@ void handle_OnConnect() {
 void handle_led1on() {
   LED1status = HIGH;
   Serial.println("GPIO4 Status: ON");
-  server.send(200, "text/html", SendHTML(true,LED2status)); 
+  server.send(200, "text/html", SendHTML(true)); 
 }
 void handle_led1off() {
   LED1status = LOW;
   Serial.println("GPIO4 Status: OFF");
-  server.send(200, "text/html", SendHTML(false,LED2status)); 
+  server.send(200, "text/html", SendHTML(false)); 
 }
 void handle_NotFound(){
   server.send(404, "text/plain", "Not found");
