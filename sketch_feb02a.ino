@@ -65,20 +65,20 @@ void color()
   green = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
 
   //white
-  digitalWrite(s17, LOW);
+  digitalWrite(s17, HIGH);
   digitalWrite(s3, LOW);  
   delay(50);  
-  green = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
+  white = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
   
   //color_recognition
   if(red<blue && red<green)
-  Serial.println("color: Red");
+  Serial.println("RED");
   else if(blue<red && blue<green)
-  Serial.println("color: Blue");
+  Serial.println("BLUE");
   else if(green<red && green<blue)
-  Serial.println("color: Green");
+  Serial.println("GREEN");
   else if(white<10)
-  Serial.println("color: White");
+  Serial.println("WHITE");
   else
   Serial.println("color: Not Defined");
 
